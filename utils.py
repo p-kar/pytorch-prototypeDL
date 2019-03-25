@@ -79,7 +79,7 @@ class CIFAR10ElasticTransform(object):
         return image
 
 def get_mnist_loaders(data_dir, bsize, num_workers, sigma, alpha):
-    transform = transforms.Compose([MNISTElasticTranform(sigma, alpha), transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+    transform = transforms.Compose([MNISTElasticTranform(sigma, alpha), transforms.ToTensor()])
 
     train_set = datasets.MNIST(root=data_dir, train=True, download=True,
         transform=transform)
@@ -92,7 +92,7 @@ def get_mnist_loaders(data_dir, bsize, num_workers, sigma, alpha):
     return train_loader, valid_loader
 
 def get_cifar_loaders(data_dir, bsize, num_workers, sigma, alpha):
-    transform = transforms.Compose([CIFAR10ElasticTransform(sigma, alpha), transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    transform = transforms.Compose([CIFAR10ElasticTransform(sigma, alpha), transforms.ToTensor()])
 
     train_set = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=transform)
     train_loader = DataLoader(train_set, batch_size=bsize, shuffle=True, num_workers=num_workers)

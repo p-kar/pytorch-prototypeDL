@@ -74,8 +74,7 @@ class CAE(nn.Module):
         x = self.dl2(x, (self.l1_size, self.l1_size))
         x = F.relu(x)
         x = self.dl1(x, (self.img_size, self.img_size))
-        # changed this to relu instead of sigmoid
-        x = F.relu(x)
+        x = torch.sigmoid(x)
 
         return x
 
