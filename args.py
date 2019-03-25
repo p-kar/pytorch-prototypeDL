@@ -11,7 +11,7 @@ def get_args():
     parser = argparse.ArgumentParser(description='EE 381V: Deep Learning for Case-Based Reasoning through Prototypes')
 
     # mode
-    parser.add_argument('--mode', default='train', type=str, help='mode of the python script')
+    parser.add_argument('--mode', default='train_mnist', type=str, help='mode of the python script')
 
     # DataLoader
     parser.add_argument('--data_dir', default='./data/mnist', type=str, help='root directory of the dataset')

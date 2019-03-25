@@ -17,8 +17,9 @@ from torchvision import datasets
 from torchvision import transforms
 from torch.utils.data import DataLoader
 
-from args import get_args
+from utils import *
 from models import CAE
+from args import get_args
 from logger import TensorboardXLogger
 
 use_cuda = torch.cuda.is_available()
@@ -74,17 +75,18 @@ def evaluate(opts, model, loader, criterion, device):
 
 
 def train(opts):
-
-    train_set = datasets.MNIST(root=opts.data_dir, train=True, download=True,
-        transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]))
-    train_loader = DataLoader(train_set, shuffle=True, batch_size=opts.bsize, num_workers=opts.nworkers)
-
-    valid_set = datasets.MNIST(root=opts.data_dir, train=False, download=True,
-        transform=transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]))
-    valid_loader = DataLoader(valid_set, shuffle=False, batch_size=opts.bsize, num_workers=opts.nworkers)
-
+    
     device = torch.device("cuda" if use_cuda else "cpu")
-    model = CAE(1, 10, 28, 15).to(device)
+
+    if opts.mode == 'train_mnist':
+        train_loader, valid_loader = get_mnist_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
+        model = CAE(1, 10, 28, 15).to(device)
+    elif opts.mode == 'train_cifar':
+        train_loader, valid_loader = get_cifar_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
+        model = CAE(3, 10, 32, 15).to(device)
+    else:
+        raise NotImplementedError('Unknown train mode')
+
     if opts.optim == 'adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=opts.lr, weight_decay=opts.wd)
     else:

@@ -112,9 +112,16 @@ class CAE(nn.Module):
         for i in range(n_rows):
                 for j in range(n_cols):
                     if i*n_cols + j < self.n_prototypes:
-                        b[i][j].imshow(p[i*n_cols + j].view(self.img_size, self.img_size).data.cpu().numpy(),
+                        if self.n_in_channels == 1:
+                            b[i][j].imshow(p[i*n_cols + j].view(self.img_size, self.img_size).data.cpu().numpy(),
                                         cmap='gray',
                                         interpolation='none')
+                        elif self.n_in_channels == 3:
+                            image = p[i*n_cols + j].view(3, self.img_size, self.img_size).data.cpu().numpy()
+                            image = np.moveaxis(image, [0, 1, 2], [2, 1, 0])
+                            b[i][j].imshow(image)
+                        else:
+                            raise NotImplementedError("Unknown input number of channels")
                         b[i][j].axis('off')
         
         plt.savefig(os.path.join(save_dir, save_name),
