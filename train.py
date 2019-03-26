@@ -98,7 +98,7 @@ def train(opts):
     best_val_acc = 0.0
 
     model_path = os.path.join(opts.save_path, 'model_latest.net')
-    if os.path.exists(model_path):
+    if opts.resume and os.path.exists(model_path):
         # restoring training from save_state
         print ('====> Resuming training from previous checkpoint')
         save_state = torch.load(model_path, map_location='cpu')
@@ -118,6 +118,7 @@ def train(opts):
     for epoch in range(opts.start_epoch, opts.epochs):
         model.train()
         logger.step()
+        valid_sample = torch.stack([valid_loader.dataset[i][0] for i in random.sample(range(len(valid_loader.dataset)), 10)]).to(device)
 
         for batch_idx, (data, target) in enumerate(train_loader):
             acc, loss, class_error, ae_error, error_1, error_2 = run_iter(opts, data, target, model, criterion, device)
@@ -167,6 +168,8 @@ def train(opts):
         prototypes = model.save_prototypes(opts.save_path, 'prototypes_latest.png')
         x = torchvision.utils.make_grid(prototypes, nrow=10)
         logger.writer.add_image('Prototypes (latest)', x, epoch)
+        ae_samples = model.get_decoded_pairs_grid(valid_sample)
+        logger.writer.add_image('AE_samples_latest', ae_samples, epoch)
 
 
 opts = get_args()

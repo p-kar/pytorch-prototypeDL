@@ -2,6 +2,7 @@ import os
 import pdb
 import sys
 import torch
+import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
@@ -157,6 +158,21 @@ class CAE(nn.Module):
         R2 = torch.mean(torch.min(prototype_distances, dim=1)[0])
 
         return logits, R, R1, R2
+
+    def get_decoded_pairs_grid(self, x):
+        x_true = x
+        x = self.enc(x)
+        x = self.decoder(x)
+
+        # visualize the decoded images
+        nrows = 5
+        pairs = []
+        for i in range(x_true.shape[0]):
+            pairs.append(torchvision.utils.make_grid(torch.stack((x_true[i], x[i])), nrow=2))
+        pairs = torch.stack(pairs)
+        pairs = torchvision.utils.make_grid(pairs, nrow=nrows, padding=5)
+
+        return pairs
 
     def save_prototypes(self, save_dir, save_name):
 

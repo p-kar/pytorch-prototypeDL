@@ -2,7 +2,7 @@ import os
 import pdb
 import subprocess as sp
 
-OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_proto_50_upconv'
+OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_proto_50_upconv_lambda_class_5'
 SCRIPT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/scripts'
 
 mapping_dict = {
@@ -16,7 +16,7 @@ mapping_dict = {
     '__MODE__': 'train_cifar',
     '__DATA_DIR__': '/scratch/cluster/pkar/pytorch-prototypeDL/data/cifar',
     '__NWORKERS__': '4',
-    '__BSIZE__': '250',
+    '__BSIZE__': '256',
     '__SHUFFLE__': 'True',
     '__SIGMA__': '4',
     '__ALPHA__': '20',
@@ -29,12 +29,12 @@ mapping_dict = {
     '__EPOCHS__': '1500',
     '__MAX_NORM__': '1',
     '__START_EPOCH__': '0',
-    '__LAMBDA_CLASS__': '20',
+    '__LAMBDA_CLASS__': '5',
     '__LAMBDA_AE__': '1',
     '__LAMBDA_1__': '1',
     '__LAMBDA_2__': '1',
     '__LOG_ITER__': '100',
-    '__RESUME__': 'False',
+    '__RESUME__': 'True',
     '__SEED__': '123',
     }
 

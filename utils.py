@@ -86,7 +86,7 @@ def get_mnist_loaders(data_dir, bsize, num_workers, sigma, alpha):
     train_loader = DataLoader(train_set, shuffle=True, batch_size=bsize, num_workers=num_workers)
 
     valid_set = datasets.MNIST(root=data_dir, train=False, download=True,
-        transform=transform)
+        transform=transforms.ToTensor())
     valid_loader = DataLoader(valid_set, shuffle=False, batch_size=bsize, num_workers=num_workers)
 
     return train_loader, valid_loader
@@ -97,7 +97,7 @@ def get_cifar_loaders(data_dir, bsize, num_workers, sigma, alpha):
     train_set = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=transform)
     train_loader = DataLoader(train_set, batch_size=bsize, shuffle=True, num_workers=num_workers)
 
-    valid_set = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=transform)
+    valid_set = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=transforms.ToTensor())
     valid_loader = DataLoader(valid_set, batch_size=bsize, shuffle=False, num_workers=num_workers)
 
     return train_loader, valid_loader
