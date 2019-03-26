@@ -34,8 +34,6 @@ def get_args():
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
     parser.add_argument('--epochs', default=1500, type=int, help='number of total epochs to run')
     parser.add_argument('--max_norm', default=1, type=float, help='Max grad norm')
-    # parser.add_argument('--lr_decay_step', default=50, type=int, help='learning rate decay step (after how many epochs)')
-    # parser.add_argument('--lr_decay_gamma', default=0.1, type=float, help='learning rate decay gamma')
     parser.add_argument('--start_epoch', default=0, type=int, help='manual epoch number (useful on restarts)')
 
     # Loss Term Parameters

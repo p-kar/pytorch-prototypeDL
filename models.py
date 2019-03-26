@@ -129,6 +129,8 @@ class CAE(nn.Module):
                         pad_inches=0)
         plt.close()
 
+        return p.data.cpu().view(-1, self.n_in_channels, self.img_size, self.img_size)
+
 
 # cae = CAE(1, 10, 28, 15)
 # x = torch.randn(5, 1, 28, 28)

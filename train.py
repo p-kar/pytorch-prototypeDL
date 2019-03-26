@@ -80,10 +80,10 @@ def train(opts):
 
     if opts.mode == 'train_mnist':
         train_loader, valid_loader = get_mnist_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
-        model = CAE(1, 10, 28, 15).to(device)
+        model = CAE(1, 10, 28, opts.n_prototypes)
     elif opts.mode == 'train_cifar':
         train_loader, valid_loader = get_cifar_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
-        model = CAE(3, 10, 32, 15).to(device)
+        model = CAE(3, 10, 32, opts.n_prototypes)
     else:
         raise NotImplementedError('Unknown train mode')
 
@@ -93,14 +93,29 @@ def train(opts):
         raise NotImplementedError("Unknown optim type")
     criterion = nn.CrossEntropyLoss()
 
-    # for logging
-    logger = TensorboardXLogger(opts.start_epoch, opts.log_iter, opts.log_dir)
-    logger.set(['acc', 'loss', 'loss_class', 'loss_ae', 'loss_r1', 'loss_r2'])
-
+    start_n_iter = 0
     # for choosing the best model
     best_val_acc = 0.0
 
-    for epoch in range(opts.epochs):
+    model_path = os.path.join(opts.save_path, 'model_latest.net')
+    if os.path.exists(model_path):
+        # restoring training from save_state
+        print ('====> Resuming training from previous checkpoint')
+        save_state = torch.load(model_path, map_location='cpu')
+        model.load_state_dict(save_state['state_dict'])
+        start_n_iter = save_state['n_iter']
+        best_val_acc = save_state['best_val_acc']
+        opts = save_state['opts']
+        opts.start_epoch = save_state['epoch'] + 1
+
+    model = model.to(device)
+
+    # for logging
+    logger = TensorboardXLogger(opts.start_epoch, opts.log_iter, opts.log_dir)
+    logger.set(['acc', 'loss', 'loss_class', 'loss_ae', 'loss_r1', 'loss_r2'])
+    logger.n_iter = start_n_iter
+
+    for epoch in range(opts.start_epoch, opts.epochs):
         model.train()
         logger.step()
 
@@ -134,7 +149,9 @@ def train(opts):
             }
             model_path = os.path.join(opts.save_path, 'model_best.net')
             torch.save(save_state, model_path)
-            model.save_prototypes(opts.save_path, 'prototypes_best.png')
+            prototypes = model.save_prototypes(opts.save_path, 'prototypes_best.png')
+            x = torchvision.utils.make_grid(prototypes, nrow=10)
+            logger.writer.add_image('Prototypes (best)', x, epoch)
 
         save_state = {
             'epoch': epoch,
@@ -147,7 +164,9 @@ def train(opts):
         }
         model_path = os.path.join(opts.save_path, 'model_latest.net')
         torch.save(save_state, model_path)
-        model.save_prototypes(opts.save_path, 'prototypes_latest.png')
+        prototypes = model.save_prototypes(opts.save_path, 'prototypes_latest.png')
+        x = torchvision.utils.make_grid(prototypes, nrow=10)
+        logger.writer.add_image('Prototypes (latest)', x, epoch)
 
 
 opts = get_args()

@@ -2,7 +2,7 @@ import os
 import pdb
 import subprocess as sp
 
-OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar'
+OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_proto_40'
 SCRIPT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/scripts'
 
 mapping_dict = {
@@ -10,7 +10,7 @@ mapping_dict = {
     '__EMAILID__': 'pkar@cs.utexas.edu',
     '__PROJECT__': 'INSTRUCTIONAL',
     # Script parameters
-    '__JOBNAME__': ['cifar_lr_2e-3', 'cifar_lr_6e-4', 'cifar_lr_6e-3'],
+    '__JOBNAME__': ['cifar_lr_2e-3', 'cifar_lr_6e-4'],
     # Algorithm hyperparameters
     '__CODE_ROOT__': '/scratch/cluster/pkar/pytorch-prototypeDL',
     '__MODE__': 'train_cifar',
@@ -20,10 +20,10 @@ mapping_dict = {
     '__SHUFFLE__': 'True',
     '__SIGMA__': '4',
     '__ALPHA__': '20',
-    '__N_PROTOTYPES__': '15',
+    '__N_PROTOTYPES__': '50',
     '__DROPOUT_P__': '0.2',
     '__OPTIM__': 'adam',
-    '__LR__': ['2e-3', '6e-4', '6e-3'],
+    '__LR__': ['2e-3', '6e-4'],
     '__WD__': '4e-5',
     '__MOMENTUM__': '0.9',
     '__EPOCHS__': '1500',
