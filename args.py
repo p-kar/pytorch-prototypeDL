@@ -26,6 +26,7 @@ def get_args():
     # Model Parameters
     parser.add_argument('--n_prototypes', default=15, type=int, help='Number of prototypes in the network architecture')
     parser.add_argument('--decoder_arch', default='deconv', type=str, help='Architecture of the AE decoder [deconv | upconv]')
+    parser.add_argument('--intermediate_channels', default=10, type=int, help='Number of intermediate channels for the bottleneck (default: 10)')
 
     # Optimization Parameters
     parser.add_argument('--optim', default='adam', type=str, help='Optimizer type')

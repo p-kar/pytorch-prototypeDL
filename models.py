@@ -25,7 +25,7 @@ def conv_output_size(conv_layer, inp_size):
     return x
 
 class DecoderDeConv(nn.Module):
-    def __init__(self, n_in_channels, img_size, sizes):
+    def __init__(self, n_in_channels, img_size, sizes, intermediate_channels):
         """
         Decoder with deconvolutional layers for upsampling
         """
@@ -36,7 +36,7 @@ class DecoderDeConv(nn.Module):
         self.sizes = sizes
 
         # dln means the output of the nth layer of the decoder
-        self.dl4 = nn.ConvTranspose2d(10, 32, 3, 2, 1)
+        self.dl4 = nn.ConvTranspose2d(intermediate_channels, 32, 3, 2, 1)
         self.dl3 = nn.ConvTranspose2d(32, 32, 3, 2, 1)
         self.dl2 = nn.ConvTranspose2d(32, 32, 3, 2, 1)
         self.dl1 = nn.ConvTranspose2d(32, n_in_channels, 3, 2, 1)
@@ -53,7 +53,7 @@ class DecoderDeConv(nn.Module):
         return x
 
 class DecoderUpsampleConv(nn.Module):
-    def __init__(self, n_in_channels, img_size):
+    def __init__(self, n_in_channels, img_size, intermediate_channels):
         """
         Decoder with upsample layers followed by convolutional layers
         for avoiding checkerboarding effect.
@@ -68,7 +68,7 @@ class DecoderUpsampleConv(nn.Module):
         self.img_size = img_size
 
         # dln means the output of the nth layer of the decoder
-        self.dl4 = nn.Conv2d(10, 32, 3, 1, 1)
+        self.dl4 = nn.Conv2d(intermediate_channels, 32, 3, 1, 1)
         self.dl3 = nn.Conv2d(32, 32, 3, 1, 1)
         self.dl2 = nn.Conv2d(32, 32, 3, 1, 1)
         self.dl1 = nn.Conv2d(32, n_in_channels, 3, 1, 1)
@@ -94,7 +94,7 @@ class DecoderUpsampleConv(nn.Module):
 
 
 class CAE(nn.Module):
-    def __init__(self, n_in_channels, n_classes, img_size, n_prototypes, decoder_arch):
+    def __init__(self, n_in_channels, n_classes, img_size, n_prototypes, decoder_arch, intermediate_channels=10):
         """
         Assumes input image to be of square size
         """
@@ -110,7 +110,7 @@ class CAE(nn.Module):
         self.el1 = nn.Conv2d(n_in_channels, 32, kernel_size=3, stride=2, padding=1)
         self.el2 = nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1)
         self.el3 = nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1)
-        self.el4 = nn.Conv2d(32, 10, kernel_size=3, stride=2, padding=1)
+        self.el4 = nn.Conv2d(32, intermediate_channels, kernel_size=3, stride=2, padding=1)
         self.enc = nn.Sequential(self.el1, nn.ReLU(),
             self.el2, nn.ReLU(),
             self.el3, nn.ReLU(),
@@ -132,9 +132,9 @@ class CAE(nn.Module):
 
         # decoder
         if decoder_arch == 'deconv':
-            self.decoder = DecoderDeConv(n_in_channels, img_size, [self.l1_size, self.l2_size, self.l3_size, self.l4_size])
+            self.decoder = DecoderDeConv(n_in_channels, img_size, [self.l1_size, self.l2_size, self.l3_size, self.l4_size], intermediate_channels)
         elif decoder_arch == 'upconv':
-            self.decoder = DecoderUpsampleConv(n_in_channels, img_size)
+            self.decoder = DecoderUpsampleConv(n_in_channels, img_size, intermediate_channels)
         else:
             raise NotImplementedError('Unknown decoder architecture')
 
