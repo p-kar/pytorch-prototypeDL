@@ -80,10 +80,10 @@ def train(opts):
 
     if opts.mode == 'train_mnist':
         train_loader, valid_loader = get_mnist_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
-        model = CAE(1, 10, 28, opts.n_prototypes)
+        model = CAE(1, 10, 28, opts.n_prototypes, opts.decoder_arch)
     elif opts.mode == 'train_cifar':
         train_loader, valid_loader = get_cifar_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
-        model = CAE(3, 10, 32, opts.n_prototypes)
+        model = CAE(3, 10, 32, opts.n_prototypes, opts.decoder_arch)
     else:
         raise NotImplementedError('Unknown train mode')
 

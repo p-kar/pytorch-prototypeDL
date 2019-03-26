@@ -2,7 +2,7 @@ import os
 import pdb
 import subprocess as sp
 
-OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_proto_40'
+OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_proto_50_upconv'
 SCRIPT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/scripts'
 
 mapping_dict = {
@@ -21,7 +21,7 @@ mapping_dict = {
     '__SIGMA__': '4',
     '__ALPHA__': '20',
     '__N_PROTOTYPES__': '50',
-    '__DROPOUT_P__': '0.2',
+    '__DECODER_ARCH__': 'upconv',
     '__OPTIM__': 'adam',
     '__LR__': ['2e-3', '6e-4'],
     '__WD__': '4e-5',

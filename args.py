@@ -25,7 +25,7 @@ def get_args():
 
     # Model Parameters
     parser.add_argument('--n_prototypes', default=15, type=int, help='Number of prototypes in the network architecture')
-    parser.add_argument('--dropout_p', default=0.2, type=float, help='Dropout probablity for the linear layers')
+    parser.add_argument('--decoder_arch', default='deconv', type=str, help='Architecture of the AE decoder [deconv | upconv]')
 
     # Optimization Parameters
     parser.add_argument('--optim', default='adam', type=str, help='Optimizer type')

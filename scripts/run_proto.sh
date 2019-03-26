@@ -10,7 +10,7 @@ python -u $code_root/train.py \
 	--sigma __SIGMA__ \
 	--alpha __ALPHA__ \
 	--n_prototypes __N_PROTOTYPES__ \
-	--dropout_p __DROPOUT_P__ \
+	--decoder_arch __DECODER_ARCH__ \
 	--optim __OPTIM__ \
 	--lr __LR__ \
 	--wd __WD__ \

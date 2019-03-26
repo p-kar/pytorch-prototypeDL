@@ -23,8 +23,77 @@ def conv_output_size(conv_layer, inp_size):
     x = ((inp_size + 2 * padding - dilation * (ksize - 1) - 1) // stride) + 1
     return x
 
+class DecoderDeConv(nn.Module):
+    def __init__(self, n_in_channels, img_size, sizes):
+        """
+        Decoder with deconvolutional layers for upsampling
+        """
+        super(DecoderDeConv, self).__init__()
+
+        self.n_in_channels = n_in_channels
+        self.img_size = img_size
+        self.sizes = sizes
+
+        # dln means the output of the nth layer of the decoder
+        self.dl4 = nn.ConvTranspose2d(10, 32, 3, 2, 1)
+        self.dl3 = nn.ConvTranspose2d(32, 32, 3, 2, 1)
+        self.dl2 = nn.ConvTranspose2d(32, 32, 3, 2, 1)
+        self.dl1 = nn.ConvTranspose2d(32, n_in_channels, 3, 2, 1)
+
+    def forward(self, x):
+        x = self.dl4(x, (self.sizes[2], self.sizes[2]))
+        x = F.relu(x)
+        x = self.dl3(x, (self.sizes[1], self.sizes[1]))
+        x = F.relu(x)
+        x = self.dl2(x, (self.sizes[0], self.sizes[0]))
+        x = F.relu(x)
+        x = self.dl1(x, (self.img_size, self.img_size))
+        x = torch.sigmoid(x)
+        return x
+
+class DecoderUpsampleConv(nn.Module):
+    def __init__(self, n_in_channels, img_size):
+        """
+        Decoder with upsample layers followed by convolutional layers
+        for avoiding checkerboarding effect.
+        Assumes that the image size if divisible by 16.
+        """
+        super(DecoderUpsampleConv, self).__init__()
+
+        if img_size % 16 != 0:
+            raise NotImplementedError('Cannot use this decoder with image_sizes not divisible by 16')
+
+        self.n_in_channels = n_in_channels
+        self.img_size = img_size
+
+        # dln means the output of the nth layer of the decoder
+        self.dl4 = nn.Conv2d(10, 32, 3, 1, 1)
+        self.dl3 = nn.Conv2d(32, 32, 3, 1, 1)
+        self.dl2 = nn.Conv2d(32, 32, 3, 1, 1)
+        self.dl1 = nn.Conv2d(32, n_in_channels, 3, 1, 1)
+
+    def forward(self, x):
+        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = self.dl4(x)
+        x = F.relu(x)
+
+        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = self.dl3(x)
+        x = F.relu(x)
+
+        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = self.dl2(x)
+        x = F.relu(x)
+
+        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = self.dl1(x)
+        x = torch.sigmoid(x)
+
+        return x
+
+
 class CAE(nn.Module):
-    def __init__(self, n_in_channels, n_classes, img_size, n_prototypes):
+    def __init__(self, n_in_channels, n_classes, img_size, n_prototypes, decoder_arch):
         """
         Assumes input image to be of square size
         """
@@ -60,23 +129,13 @@ class CAE(nn.Module):
         self.prototypes = nn.Parameter(torch.FloatTensor(n_prototypes, self.n_features))
         nn.init.xavier_uniform_(self.prototypes)
 
-        # dln means the output of the nth layer of the decoder
-        self.dl4 = nn.ConvTranspose2d(10, 32, self.el4.kernel_size, self.el4.stride, self.el4.padding)
-        self.dl3 = nn.ConvTranspose2d(32, 32, self.el3.kernel_size, self.el3.stride, self.el3.padding)
-        self.dl2 = nn.ConvTranspose2d(32, 32, self.el2.kernel_size, self.el2.stride, self.el2.padding)
-        self.dl1 = nn.ConvTranspose2d(32, n_in_channels, self.el1.kernel_size, self.el1.stride, self.el1.padding)
-
-    def decode(self, x):
-        x = self.dl4(x, (self.l3_size, self.l3_size))
-        x = F.relu(x)
-        x = self.dl3(x, (self.l2_size, self.l2_size))
-        x = F.relu(x)
-        x = self.dl2(x, (self.l1_size, self.l1_size))
-        x = F.relu(x)
-        x = self.dl1(x, (self.img_size, self.img_size))
-        x = torch.sigmoid(x)
-
-        return x
+        # decoder
+        if decoder_arch == 'deconv':
+            self.decoder = DecoderDeConv(n_in_channels, img_size, [self.l1_size, self.l2_size, self.l3_size, self.l4_size])
+        elif decoder_arch == 'upconv':
+            self.decoder = DecoderUpsampleConv(n_in_channels, img_size)
+        else:
+            raise NotImplementedError('Unknown decoder architecture')
 
     def forward(self, x):
         batch_size = x.shape[0]
@@ -84,7 +143,7 @@ class CAE(nn.Module):
         x_true = x
         x = self.enc(x)
         x_enc = x.view(batch_size, -1)
-        x = self.decode(x)
+        x = self.decoder(x)
         x_out = x
 
         # batch_size x n_prototypes
@@ -102,7 +161,7 @@ class CAE(nn.Module):
     def save_prototypes(self, save_dir, save_name):
 
         p = self.prototypes.view(self.n_prototypes, -1, self.l4_size, self.l4_size)
-        p = self.decode(p)
+        p = self.decoder(p)
 
         # visualize the prototype images
         n_cols = 5
