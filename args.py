@@ -24,9 +24,9 @@ def get_args():
     parser.add_argument('--alpha', default=20, type=int, help='alpha value for the elastic deformation')
 
     # Model Parameters
+    parser.add_argument('--arch', default='small', type=str, help='Architecture type for the auto-encoder [small | large]')
     parser.add_argument('--n_prototypes', default=15, type=int, help='Number of prototypes in the network architecture')
     parser.add_argument('--decoder_arch', default='deconv', type=str, help='Architecture of the AE decoder [deconv | upconv]')
-    parser.add_argument('--intermediate_channels', default=10, type=int, help='Number of intermediate channels for the bottleneck (default: 10)')
 
     # Optimization Parameters
     parser.add_argument('--optim', default='adam', type=str, help='Optimizer type')

@@ -25,7 +25,7 @@ def conv_output_size(conv_layer, inp_size):
     return x
 
 class DecoderDeConv(nn.Module):
-    def __init__(self, n_in_channels, img_size, sizes, intermediate_channels):
+    def __init__(self, n_in_channels, img_size, sizes, channels):
         """
         Decoder with deconvolutional layers for upsampling
         """
@@ -36,10 +36,10 @@ class DecoderDeConv(nn.Module):
         self.sizes = sizes
 
         # dln means the output of the nth layer of the decoder
-        self.dl4 = nn.ConvTranspose2d(intermediate_channels, 32, 3, 2, 1)
-        self.dl3 = nn.ConvTranspose2d(32, 32, 3, 2, 1)
-        self.dl2 = nn.ConvTranspose2d(32, 32, 3, 2, 1)
-        self.dl1 = nn.ConvTranspose2d(32, n_in_channels, 3, 2, 1)
+        self.dl4 = nn.ConvTranspose2d(channels[3], channels[2], 3, 2, 1)
+        self.dl3 = nn.ConvTranspose2d(channels[2], channels[1], 3, 2, 1)
+        self.dl2 = nn.ConvTranspose2d(channels[1], channels[0], 3, 2, 1)
+        self.dl1 = nn.ConvTranspose2d(channels[0], n_in_channels, 3, 2, 1)
 
     def forward(self, x):
         x = self.dl4(x, (self.sizes[2], self.sizes[2]))
@@ -53,7 +53,7 @@ class DecoderDeConv(nn.Module):
         return x
 
 class DecoderUpsampleConv(nn.Module):
-    def __init__(self, n_in_channels, img_size, intermediate_channels):
+    def __init__(self, n_in_channels, img_size, channels):
         """
         Decoder with upsample layers followed by convolutional layers
         for avoiding checkerboarding effect.
@@ -68,10 +68,10 @@ class DecoderUpsampleConv(nn.Module):
         self.img_size = img_size
 
         # dln means the output of the nth layer of the decoder
-        self.dl4 = nn.Conv2d(intermediate_channels, 32, 3, 1, 1)
-        self.dl3 = nn.Conv2d(32, 32, 3, 1, 1)
-        self.dl2 = nn.Conv2d(32, 32, 3, 1, 1)
-        self.dl1 = nn.Conv2d(32, n_in_channels, 3, 1, 1)
+        self.dl4 = nn.Conv2d(channels[3], channels[2], 3, 1, 1)
+        self.dl3 = nn.Conv2d(channels[2], channels[1], 3, 1, 1)
+        self.dl2 = nn.Conv2d(channels[1], channels[0], 3, 1, 1)
+        self.dl1 = nn.Conv2d(channels[0], n_in_channels, 3, 1, 1)
 
     def forward(self, x):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
@@ -94,7 +94,7 @@ class DecoderUpsampleConv(nn.Module):
 
 
 class CAE(nn.Module):
-    def __init__(self, n_in_channels, n_classes, img_size, n_prototypes, decoder_arch, intermediate_channels=10):
+    def __init__(self, n_in_channels, n_classes, img_size, n_prototypes, decoder_arch, channels=[32, 32, 32, 10]):
         """
         Assumes input image to be of square size
         """
@@ -107,10 +107,10 @@ class CAE(nn.Module):
 
         # construct the model
         # eln means the nth layer of the encoder
-        self.el1 = nn.Conv2d(n_in_channels, 32, kernel_size=3, stride=2, padding=1)
-        self.el2 = nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1)
-        self.el3 = nn.Conv2d(32, 32, kernel_size=3, stride=2, padding=1)
-        self.el4 = nn.Conv2d(32, intermediate_channels, kernel_size=3, stride=2, padding=1)
+        self.el1 = nn.Conv2d(n_in_channels, channels[0], kernel_size=3, stride=2, padding=1)
+        self.el2 = nn.Conv2d(channels[0], channels[1], kernel_size=3, stride=2, padding=1)
+        self.el3 = nn.Conv2d(channels[1], channels[2], kernel_size=3, stride=2, padding=1)
+        self.el4 = nn.Conv2d(channels[2], channels[3], kernel_size=3, stride=2, padding=1)
         self.enc = nn.Sequential(self.el1, nn.ReLU(),
             self.el2, nn.ReLU(),
             self.el3, nn.ReLU(),
@@ -132,9 +132,9 @@ class CAE(nn.Module):
 
         # decoder
         if decoder_arch == 'deconv':
-            self.decoder = DecoderDeConv(n_in_channels, img_size, [self.l1_size, self.l2_size, self.l3_size, self.l4_size], intermediate_channels)
+            self.decoder = DecoderDeConv(n_in_channels, img_size, [self.l1_size, self.l2_size, self.l3_size, self.l4_size], channels)
         elif decoder_arch == 'upconv':
-            self.decoder = DecoderUpsampleConv(n_in_channels, img_size, intermediate_channels)
+            self.decoder = DecoderUpsampleConv(n_in_channels, img_size, channels)
         else:
             raise NotImplementedError('Unknown decoder architecture')
 

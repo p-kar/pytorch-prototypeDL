@@ -78,12 +78,19 @@ def train(opts):
     
     device = torch.device("cuda" if use_cuda else "cpu")
 
+    if opts.arch == 'small':
+        channels = [32, 32, 32, 10]
+    elif opts.arch == 'large':
+        channels = [256, 128, 64, 32]
+    else:
+        raise NotImplementedError('Unknown model architecture')
+
     if opts.mode == 'train_mnist':
         train_loader, valid_loader = get_mnist_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
-        model = CAE(1, 10, 28, opts.n_prototypes, opts.decoder_arch, opts.intermediate_channels)
+        model = CAE(1, 10, 28, opts.n_prototypes, opts.decoder_arch, channels)
     elif opts.mode == 'train_cifar':
         train_loader, valid_loader = get_cifar_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
-        model = CAE(3, 10, 32, opts.n_prototypes, opts.decoder_arch, opts.intermediate_channels)
+        model = CAE(3, 10, 32, opts.n_prototypes, opts.decoder_arch, channels)
     else:
         raise NotImplementedError('Unknown train mode')
 
