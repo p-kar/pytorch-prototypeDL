@@ -53,19 +53,16 @@ class DecoderDeConv(nn.Module):
         return x
 
 class DecoderUpsampleConv(nn.Module):
-    def __init__(self, n_in_channels, img_size, channels):
+    def __init__(self, n_in_channels, img_size, sizes, channels):
         """
         Decoder with upsample layers followed by convolutional layers
         for avoiding checkerboarding effect.
-        Assumes that the image size if divisible by 16.
         """
         super(DecoderUpsampleConv, self).__init__()
 
-        if img_size % 16 != 0:
-            raise NotImplementedError('Cannot use this decoder with image_sizes not divisible by 16')
-
         self.n_in_channels = n_in_channels
         self.img_size = img_size
+        self.sizes = sizes
 
         # dln means the output of the nth layer of the decoder
         self.dl4 = nn.Conv2d(channels[3], channels[2], 3, 1, 1)
@@ -74,19 +71,19 @@ class DecoderUpsampleConv(nn.Module):
         self.dl1 = nn.Conv2d(channels[0], n_in_channels, 3, 1, 1)
 
     def forward(self, x):
-        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = F.interpolate(x, size=(self.sizes[2], self.sizes[2]), mode='bilinear', align_corners=False)
         x = self.dl4(x)
         x = F.relu(x)
 
-        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = F.interpolate(x, size=(self.sizes[1], self.sizes[1]), mode='bilinear', align_corners=False)
         x = self.dl3(x)
         x = F.relu(x)
 
-        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = F.interpolate(x, size=(self.sizes[0], self.sizes[0]), mode='bilinear', align_corners=False)
         x = self.dl2(x)
         x = F.relu(x)
 
-        x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        x = F.interpolate(x, size=(self.img_size, self.img_size), mode='bilinear', align_corners=False)
         x = self.dl1(x)
         x = torch.sigmoid(x)
 
@@ -134,7 +131,7 @@ class CAE(nn.Module):
         if decoder_arch == 'deconv':
             self.decoder = DecoderDeConv(n_in_channels, img_size, [self.l1_size, self.l2_size, self.l3_size, self.l4_size], channels)
         elif decoder_arch == 'upconv':
-            self.decoder = DecoderUpsampleConv(n_in_channels, img_size, channels)
+            self.decoder = DecoderUpsampleConv(n_in_channels, img_size, [self.l1_size, self.l2_size, self.l3_size, self.l4_size], channels)
         else:
             raise NotImplementedError('Unknown decoder architecture')
 
@@ -153,7 +150,7 @@ class CAE(nn.Module):
         # batch_size x n_classes
         logits = self.linear(prototype_distances)
 
-        R = torch.mean(torch.norm(torch.sub(x_out, x_true).view(batch_size, -1), p=2, dim=1))
+        R = torch.mean(torch.norm(torch.sub(x_out, x_true).view(batch_size, -1), p=1, dim=1))
         R1 = torch.mean(torch.min(prototype_distances, dim=0)[0])
         R2 = torch.mean(torch.min(prototype_distances, dim=1)[0])
 

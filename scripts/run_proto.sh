@@ -11,7 +11,7 @@ python -u $code_root/train.py \
 	--alpha __ALPHA__ \
 	--n_prototypes __N_PROTOTYPES__ \
 	--decoder_arch __DECODER_ARCH__ \
-	--intermediate_channels __INTERMEDIATE_CHANNELS__ \
+	--arch __ARCH__ \
 	--optim __OPTIM__ \
 	--lr __LR__ \
 	--wd __WD__ \

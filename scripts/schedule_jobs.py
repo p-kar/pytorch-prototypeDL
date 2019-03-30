@@ -2,7 +2,7 @@ import os
 import pdb
 import subprocess as sp
 
-OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_large_proto_50_upconv_lambda_class_5'
+OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_upconv_l1_norm'
 SCRIPT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/scripts'
 
 mapping_dict = {
@@ -10,7 +10,7 @@ mapping_dict = {
     '__EMAILID__': 'pkar@cs.utexas.edu',
     '__PROJECT__': 'INSTRUCTIONAL',
     # Script parameters
-    '__JOBNAME__': ['cifar_lr_2e-3', 'cifar_lr_6e-4'],
+    '__JOBNAME__': ['cifar_lr_2e-4', 'cifar_lr_6e-4'],
     # Algorithm hyperparameters
     '__CODE_ROOT__': '/scratch/cluster/pkar/pytorch-prototypeDL',
     '__MODE__': 'train_cifar',
@@ -24,14 +24,14 @@ mapping_dict = {
     '__N_PROTOTYPES__': '50',
     '__DECODER_ARCH__': 'upconv',
     '__OPTIM__': 'adam',
-    '__LR__': ['2e-3', '6e-4'],
+    '__LR__': ['2e-4', '6e-4'],
     '__WD__': '4e-5',
     '__MOMENTUM__': '0.9',
     '__EPOCHS__': '1500',
     '__MAX_NORM__': '1',
     '__START_EPOCH__': '0',
-    '__LAMBDA_CLASS__': '5',
-    '__LAMBDA_AE__': '1',
+    '__LAMBDA_CLASS__': '10',
+    '__LAMBDA_AE__': '0.1',
     '__LAMBDA_1__': '1',
     '__LAMBDA_2__': '1',
     '__LOG_ITER__': '100',

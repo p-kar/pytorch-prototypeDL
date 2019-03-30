@@ -38,10 +38,10 @@ def get_args():
     parser.add_argument('--start_epoch', default=0, type=int, help='manual epoch number (useful on restarts)')
 
     # Loss Term Parameters
-    parser.add_argument('--lambda_class', default=20, type=int, help='weight proportion for the classification error')
-    parser.add_argument('--lambda_ae', default=1, type=int, help='weight proportion for the auto-encoder error')
-    parser.add_argument('--lambda_1', default=1, type=int, help='weight proportion for the interpretability regularization error')
-    parser.add_argument('--lambda_2', default=1, type=int, help='weight proportion for the interpretability regularization error')
+    parser.add_argument('--lambda_class', default=20, type=float, help='weight proportion for the classification error')
+    parser.add_argument('--lambda_ae', default=1, type=float, help='weight proportion for the auto-encoder error')
+    parser.add_argument('--lambda_1', default=1, type=float, help='weight proportion for the interpretability regularization error')
+    parser.add_argument('--lambda_2', default=1, type=float, help='weight proportion for the interpretability regularization error')
 
     # Save Parameter
     parser.add_argument('--save_path', default='./trained_models', type=str, help='Directory where models are saved')
