@@ -73,15 +73,24 @@ class DecoderUpsampleConv(nn.Module):
     def forward(self, x):
         x = F.interpolate(x, size=(self.sizes[2], self.sizes[2]), mode='bilinear', align_corners=False)
         x = self.dl4(x)
-        x = F.relu(x)
+        if self.n_in_channels != 1:
+            x = F.relu(x)
+        else:
+            x = torch.sigmoid(x)
 
         x = F.interpolate(x, size=(self.sizes[1], self.sizes[1]), mode='bilinear', align_corners=False)
         x = self.dl3(x)
-        x = F.relu(x)
+        if self.n_in_channels != 1:
+            x = F.relu(x)
+        else:
+            x = torch.sigmoid(x)
 
         x = F.interpolate(x, size=(self.sizes[0], self.sizes[0]), mode='bilinear', align_corners=False)
         x = self.dl2(x)
-        x = F.relu(x)
+        if self.n_in_channels != 1:
+            x = F.relu(x)
+        else:
+            x = torch.sigmoid(x)
 
         x = F.interpolate(x, size=(self.img_size, self.img_size), mode='bilinear', align_corners=False)
         x = self.dl1(x)
@@ -150,7 +159,7 @@ class CAE(nn.Module):
         # batch_size x n_classes
         logits = self.linear(prototype_distances)
 
-        R = torch.mean(torch.norm(torch.sub(x_out, x_true).view(batch_size, -1), p=1, dim=1))
+        R = torch.mean(torch.norm(torch.sub(x_out, x_true).view(batch_size, -1), p=2, dim=1))
         R1 = torch.mean(torch.min(prototype_distances, dim=0)[0])
         R2 = torch.mean(torch.min(prototype_distances, dim=1)[0])
 
@@ -167,7 +176,7 @@ class CAE(nn.Module):
         for i in range(x_true.shape[0]):
             pairs.append(torchvision.utils.make_grid(torch.stack((x_true[i], x[i])), nrow=2))
         pairs = torch.stack(pairs)
-        pairs = torchvision.utils.make_grid(pairs, nrow=nrows, padding=5)
+        pairs = torchvision.utils.make_grid(pairs, nrow=nrows, padding=5, pad_value=1.0)
 
         return pairs
 

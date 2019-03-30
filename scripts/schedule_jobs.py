@@ -2,7 +2,7 @@ import os
 import pdb
 import subprocess as sp
 
-OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/cifar_upconv_l1_norm'
+OUTPUT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/runs/fmnist_upconv'
 SCRIPT_ROOT='/scratch/cluster/pkar/pytorch-prototypeDL/scripts'
 
 mapping_dict = {
@@ -10,18 +10,18 @@ mapping_dict = {
     '__EMAILID__': 'pkar@cs.utexas.edu',
     '__PROJECT__': 'INSTRUCTIONAL',
     # Script parameters
-    '__JOBNAME__': ['cifar_lr_2e-4', 'cifar_lr_6e-4'],
+    '__JOBNAME__': ['fmnist_lr_2e-4', 'fmnist_lr_6e-4'],
     # Algorithm hyperparameters
     '__CODE_ROOT__': '/scratch/cluster/pkar/pytorch-prototypeDL',
-    '__MODE__': 'train_cifar',
-    '__DATA_DIR__': '/scratch/cluster/pkar/pytorch-prototypeDL/data/cifar',
+    '__MODE__': 'train_fmnist',
+    '__DATA_DIR__': '/scratch/cluster/pkar/pytorch-prototypeDL/data/fmnist',
     '__NWORKERS__': '4',
     '__BSIZE__': '256',
     '__SHUFFLE__': 'True',
     '__SIGMA__': '4',
     '__ALPHA__': '20',
-    '__ARCH__': 'large',
-    '__N_PROTOTYPES__': '50',
+    '__ARCH__': 'small',
+    '__N_PROTOTYPES__': '15',
     '__DECODER_ARCH__': 'upconv',
     '__OPTIM__': 'adam',
     '__LR__': ['2e-4', '6e-4'],
@@ -31,7 +31,7 @@ mapping_dict = {
     '__MAX_NORM__': '1',
     '__START_EPOCH__': '0',
     '__LAMBDA_CLASS__': '10',
-    '__LAMBDA_AE__': '0.1',
+    '__LAMBDA_AE__': '1',
     '__LAMBDA_1__': '1',
     '__LAMBDA_2__': '1',
     '__LOG_ITER__': '100',

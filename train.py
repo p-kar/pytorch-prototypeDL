@@ -91,6 +91,9 @@ def train(opts):
     elif opts.mode == 'train_cifar':
         train_loader, valid_loader = get_cifar_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
         model = CAE(3, 10, 32, opts.n_prototypes, opts.decoder_arch, channels)
+    elif opts.mode =='train_fmnist':
+        train_loader, valid_loader = get_fmnist_loaders(opts.data_dir, opts.bsize, opts.nworkers, opts.sigma, opts.alpha)
+        model = CAE(1, 10, 28, opts.n_prototypes, opts.decoder_arch, channels)
     else:
         raise NotImplementedError('Unknown train mode')
 
@@ -173,7 +176,7 @@ def train(opts):
         model_path = os.path.join(opts.save_path, 'model_latest.net')
         torch.save(save_state, model_path)
         prototypes = model.save_prototypes(opts.save_path, 'prototypes_latest.png')
-        x = torchvision.utils.make_grid(prototypes, nrow=10)
+        x = torchvision.utils.make_grid(prototypes, nrow=10, pad_value=1.0)
         logger.writer.add_image('Prototypes (latest)', x, epoch)
         ae_samples = model.get_decoded_pairs_grid(valid_sample)
         logger.writer.add_image('AE_samples_latest', ae_samples, epoch)

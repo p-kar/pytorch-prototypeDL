@@ -101,3 +101,16 @@ def get_cifar_loaders(data_dir, bsize, num_workers, sigma, alpha):
     valid_loader = DataLoader(valid_set, batch_size=bsize, shuffle=False, num_workers=num_workers)
 
     return train_loader, valid_loader
+
+def get_fmnist_loaders(data_dir, bsize, num_workers, sigma, alpha):
+    transform = transforms.Compose([MNISTElasticTranform(sigma, alpha), transforms.ToTensor()])
+
+    train_set = datasets.FashionMNIST(root=data_dir, train=True, download=True,
+        transform=transform)
+    train_loader = DataLoader(train_set, shuffle=True, batch_size=bsize, num_workers=num_workers)
+
+    valid_set = datasets.FashionMNIST(root=data_dir, train=False, download=True,
+        transform=transforms.ToTensor())
+    valid_loader = DataLoader(valid_set, shuffle=False, batch_size=bsize, num_workers=num_workers)
+
+    return train_loader, valid_loader
