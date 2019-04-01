@@ -174,9 +174,9 @@ class CAE(nn.Module):
         nrows = 5
         pairs = []
         for i in range(x_true.shape[0]):
-            pairs.append(torchvision.utils.make_grid(torch.stack((x_true[i], x[i])), nrow=2))
+            pairs.append(torchvision.utils.make_grid(torch.stack((x_true[i], x[i])), nrow=2, pad_value=1.0))
         pairs = torch.stack(pairs)
-        pairs = torchvision.utils.make_grid(pairs, nrow=nrows, padding=5, pad_value=1.0)
+        pairs = torchvision.utils.make_grid(pairs, nrow=nrows, padding=5)
 
         return pairs
 

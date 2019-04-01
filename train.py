@@ -161,7 +161,7 @@ def train(opts):
             model_path = os.path.join(opts.save_path, 'model_best.net')
             torch.save(save_state, model_path)
             prototypes = model.save_prototypes(opts.save_path, 'prototypes_best.png')
-            x = torchvision.utils.make_grid(prototypes, nrow=10)
+            x = torchvision.utils.make_grid(prototypes, nrow=10, pad_value=1.0)
             logger.writer.add_image('Prototypes (best)', x, epoch)
 
         save_state = {
