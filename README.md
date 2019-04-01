@@ -54,17 +54,29 @@ $ python train.py --mode train_fmnist --data_dir data/fmnist \
 
 <img src="imgs/prototype_fmnist.png"/>
 
-### 3. Training CIFAR 10
+### 3. Training CIFAR10
 
 ```bash
 $ python train.py --mode train_cifar --data_dir data/cifar \
 	--arch large --n_prototypes 50 --decoder_arch upconv
 ```
 
-#### CIFAR 10 Decoder Samples
+#### CIFAR10 Decoder Samples
 
 <img src="imgs/decoding_cifar.png"/>
 
-#### CIFAR 10 Prototypes
+#### CIFAR10 Prototypes
 
 <img src="imgs/prototype_cifar.png"/>
+
+### Results
+
+|    Dataset    | Network | Decoder Arch | # of Prototypes | Test Accuracy |                                         Notes                                         |
+|:-------------:|:-------:|:------------:|:---------------:|:-------------:|:-------------------------------------------------------------------------------------:|
+|     MNIST     | `small` |   `deconv`   |        15       |     0.9902    |                                          ---                                          |
+|               | `small` |   `upconv`   |        15       |     0.9920    |                                          ---                                          |
+| Fashion MNIST | `small` |   `deconv`   |        15       |     0.8465    |                                          ---                                          |
+|               | `small` |   `upconv`   |        15       |     0.9039    |                             `--lr 6e-4` `--lambda_class 4`                            |
+|    CIFAR10    | `small` |   `deconv`   |        50       |     0.6735    |                                      `--lr 6e-4`                                      |
+|               | `small` |   `upconv`   |        50       |     0.6845    |                             `--lr 6e-4` `--lambda_class 5`                            |
+|               | `large` |   `upconv`   |        50       |     0.7338    | `--lr 6e-4` `--lambda_class 10` `--lambda_ae 0.1` used L1 instead of MSE for AE error |
